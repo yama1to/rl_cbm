@@ -29,7 +29,7 @@ common.columns=[
     'cnt_overflow','success1','success2','ave_rew'
                 ]
 
-common.parallel= 32
+common.parallel= 120
 common.setup()
 common.report_common()
 common.report_config(config)

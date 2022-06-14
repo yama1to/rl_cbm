@@ -214,6 +214,7 @@ class HRC_q(Hyperpm_HRC):
         self.ys = np.zeros(self.Ny)
         #yc = np.zeros(Ny)
         self.epsd_time = 0
+        self.prev_hp = 0
 
 
      # 行動価値観数の計算
@@ -261,7 +262,7 @@ class HRC_q(Hyperpm_HRC):
             #         self.hc[i]=self.count
             # self.count += 1
             self.hc[(self.hs_prev==1) & (self.hs==0)] = n # hs の立ち下がりの時間を hc に保持する。
-                    
+            
 
             # ref.clockの立ち上がり
             # if self.rs_prev==0 and self.rs==1:
@@ -293,17 +294,23 @@ class HRC_q(Hyperpm_HRC):
 
             self.epsd_time += 1
         #--------------------------------------------------------------------------------------------
-
-        prev_hp = self.hp
+        
 
         # 離散時間(サイクル終了)
         self.hp = 2*self.hc/self.NN-1 # デコード、カウンタの値を連続値に変換
+        if 2 <= self.epsd_time < self.all_epsd-1:
+            tmp = np.sum( np.heaviside( np.fabs(self.hp-self.prev_hp) - 0.6 ,0))
+            self.cnt_overflow += tmp
+        
+        self.prev_hp = self.hp
+
+
         self.hc = np.zeros(self.Nh) # カウンタをリセット
         
         self.yp = self.fy(self.Wo@self.hp)# 出力
 
-        tmp = np.sum( np.heaviside( np.fabs(self.hp-prev_hp) - 0.6 ,0))
-        self.cnt_overflow += tmp
+        
+        
         #print(tmp)
 
         # record------------------------------------------------------------

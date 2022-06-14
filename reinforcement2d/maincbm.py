@@ -10,7 +10,7 @@ import agentcbm
 import environment
 
 from tqdm import tqdm 
-
+import someplot
 import argparse
 from explorer import common 
 
@@ -58,9 +58,10 @@ class Config():
         self.beta_r = 0.1
         self.beta_b = 0.
         self.beta_o = 0.1
+        
         self.alpha0 = 1.0
         self.beta = 1.0
-        self.gamma = 0.90
+        self.gamma = 0.99
 
         self.alpha_P = 0.02
 
@@ -68,13 +69,14 @@ class Config():
         self.lambda0 = 0.1
 
         self.tau_s = 20
-        self.sigma_init = 0.005
-        self.sigma_final = 0.001 #0.02
-        self.tau_sigma = 2000
 
-        self.eta_init = 0.02 # 0.0005
-        self.eta_final = 0.001
-        self.tau_eta = 1000
+        self.sigma_init = 0.3
+        self.sigma_final = 0. #0.02
+        self.tau_sigma = 0.8
+
+        self.eta_init = 0.0003 # 0.0005
+        self.eta_final = 0.00
+        self.tau_eta = 0.18
 
 
         # ResultsX
@@ -122,7 +124,11 @@ def execute(c):
     sum1_reward_list = []
     sum1_reward_list_append = sum1_reward_list.append
     train = 1
+
+    X,Y = [],[]
+
     for episode in tqdm(range(c.num_episodes)):
+        X,Y = [],[]
         #環境の初期化
         agentcbm.reset_network(episode,mean_reward)
         action = 2
@@ -141,7 +147,7 @@ def execute(c):
             #state, reward, done, info = env.step(action)
             state, reward, done, GOAL = env.step(action)
             
-            action = agentcbm.get_action(state, reward,train = train )
+            action = agentcbm.get_action(state, reward,train = train ,sum1_reward_list=sum1_reward_list)
             sum1_reward += reward
             sum2_reward += reward
             
@@ -185,15 +191,23 @@ def execute(c):
             #             plot()
             #         sys.exit()
         #print(c.cnt_goal1)   
-        #最新20エピソードの報酬総和の平均
+        #最新20エピソードの報酬総和の平
+            X.append(env.x_oribit)
+            Y.append(env.y_oribit)
         sum1_reward_list_append(sum1_reward)
         if episode>20:
             mean_reward = sum(sum1_reward_list[episode-19:])/20
             c.new_mean_reward = mean_reward
             #print(mean_reward)
-
+        plt.plot(X,Y,color='k',alpha=0.3)
 
     env.close()
+    #someplot.plot_orbit_all(X,Y,c.seed,c.num_episodes)#全ての軌道を重ねてプロット
+    #plt.show()
+    now = common.string_now()
+    plt.savefig('./xy/'+now+'.png')
+    plt.cla()
+    
     plus_reward_times = np.array(sum1_reward_list)
     plus_reward_times = np.sum(np.heaviside(plus_reward_times,0))
     
@@ -208,7 +222,7 @@ def execute(c):
     
     #np.save(file='seed='+str(c.seed),arr=sum1_reward_list)
     plt.plot(sum1_reward_list)
-    plt.save("savefig"+str(c.seed))
+    plt.savefig("./reward/"+now+'::'+str(c.seed)+'.png')
     # from explorer import visualization as vs
     # import pandas as pd 
     # df = pd.DataFrame(data=sum1_reward_list, columns=list(range(len(sum1_reward_list))))
@@ -266,24 +280,24 @@ if __name__=="__main__":
     # if sys.argv:
     #     del sys.argv[1:]
 
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument("-config", type=str)
-    # a = ap.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-config", type=str)
+    a = ap.parse_args()
 
-    # c=Config()
-    
-    # if a.config: c=common.load_config(a)
-    # env = environment.MyRobotEnv(c.render)
-    # agentcbm = agentcbm.Agent(c)
-    # execute(c)
-    # if a.config: common.save_config(c)
     c=Config()
-    for i in range(10):
-        c.seed = i
-        env = environment.MyRobotEnv(c.render)
-        agentcbm = agentcbm.Agent(c)
-        execute(c)
-        plt.show()
+    
+    if a.config: c=common.load_config(a)
+    env = environment.MyRobotEnv(c.render)
+    agentcbm = agentcbm.Agent(c)
+    execute(c)
+    if a.config: common.save_config(c)
+    # c=Config()
+    # for i in range(1):
+    #     c.seed = i
+    #     env = environment.MyRobotEnv(c.render)
+    #     agentcbm = agentcbm.Agent(c)
+    #     execute(c)
+    #     plt.show()
         
 
 

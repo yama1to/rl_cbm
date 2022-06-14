@@ -169,6 +169,9 @@ def calcurate_wheel(action):
 
 class MyRobotEnv:
     def __init__(self,render):
+        self.x_oribit = 0
+        self.y_oribit = 0
+
 
         self.reward = 0
         self.goal = 0
@@ -252,6 +255,8 @@ class MyRobotEnv:
 
         ### Reward
         i = 0 #np.argmax(object_area
+        self.x_oribit = self.px 
+        self.y_oribit = self.py
         dis = distance(self.px,self.py,self.goals[i][0],self.goals[i][1])
         #print(dis)
 

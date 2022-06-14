@@ -39,10 +39,8 @@ common.setup()
 common.report_common()
 common.report_config(config)
 
-
 import warnings
 warnings.simplefilter('ignore', FutureWarning)
-
 
 ### ランダムサーチ
 def rs1():
@@ -77,9 +75,9 @@ def optimize():
     opt.append('ep_ini',value=0.01,min=0,max=0.1,round=5)
 
     opt.maximize(target='test_prob',iteration=30,population=40,samples=3)
-
     common.config = opt.best_config # 最適化で得られた設定を基本設定とする
-#optimize()
+optimize()
+
 
 def plot1(x,y,ystd,ymin,ymax,color=None,width=1,label=None):
     # エラーバーをつけてグラフを描画、平均、標準偏差、最大値、最小値をプロットする。
@@ -103,12 +101,14 @@ def gridsearch(X1,min=0,max=1,num=41,samples=10):
     plot1(x,ymean,ystd,ymin,ymax,color=cmap(1),label="test_prob")
     plt.ylabel("test_prob")
     plt.grid(linestyle="dotted")
+    plt.ylim(-0.05,1.05)
 
     plt.subplot(3,1,2)
     x,ymean,ystd,ymin,ymax = vs.analyze(df,X1,'ave_reward')
     plot1(x,ymean,ystd,ymin,ymax,color=cmap(1),label='ave_reward')
     plt.ylabel('ave_reward')
     plt.grid(linestyle="dotted")
+    plt.ylim(-1.05,1.05)
 
     plt.subplot(3,1,3)
     x,ymean,ystd,ymin,ymax = vs.analyze(df,X1,"cnt_overflow")
@@ -116,6 +116,7 @@ def gridsearch(X1,min=0,max=1,num=41,samples=10):
     plt.ylabel("overflow")
     #plt.yscale('log')
     plt.grid(linestyle="dotted")
+    plt.ylim(-0.05,1.05)
     #plt.ylim([0,1]) # y軸の範囲
 
     plt.xlabel(X1)
@@ -131,6 +132,8 @@ def gs2():
     gridsearch("beta_i",min=0.00,max=1,num=41,samples=ns)
 
 
+    gridsearch("eta_2",min=0.00,max=1,num=101,samples=ns)
+    gridsearch("ep_2",min=0.00,max=1,num=101,samples=ns)
     gridsearch("eta_2",min=0.00,max=0.1,num=101,samples=ns)
     gridsearch("ep_2",min=0.00,max=0.1,num=101,samples=ns)
     #gridsearch("Temp",min=-256,max=256,num=4001,samples=ns)

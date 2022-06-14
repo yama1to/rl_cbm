@@ -186,8 +186,8 @@ class Agent:
 
         
         # 報酬の獲得率を計算 #
-        if (self.episode+1)%50 == 0:
-            self.success_ratio = sum(success[self.episode-51:self.episode-1])/50
+        if (self.episode+1)%20 == 0:
+            self.success_ratio = sum(success[self.episode-21:self.episode-1])/20
         # save #v
         if self.plot:
             self.Hx = []
@@ -280,8 +280,8 @@ class Agent:
         self.pre_epi = self.now_epi
 
 
-        if self.success_ratio > 0.8:
-            eta = 0
+        # if self.success_ratio > 0.8:
+        #     eta = 0
 
         Wo_next = self.Wo.copy()
         Wo_next[self.a] = self.Wo[self.a] + eta*(reward  + self.gamma*qt_next[a_next]-self.q[self.a])*self.r#np.tannなし
@@ -292,8 +292,8 @@ class Agent:
         0から1のランダム数が、epsilon以下のときに行動はランダムな動作となる
         """
         epsilon = self.ep_fin+(self.ep_ini-self.ep_fin)*np.exp(-self.success_ratio/self.ep_2)
-        if self.success_ratio > 0.8:
-            epsilon = 0
+        # if self.success_ratio > 0.8:
+        #     epsilon = 0
 
         if epsilon > np.random.uniform(0, 1):
             a_next = np.random.choice([0,1,2])#ランダムな行動

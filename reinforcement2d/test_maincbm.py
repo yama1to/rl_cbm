@@ -43,7 +43,7 @@ common.columns=[
 """
 
 
-common.parallel= 120
+common.parallel= 100
 common.setup()
 common.report_common()
 common.report_config(config)
@@ -80,13 +80,20 @@ def optimize():
     #opt.append("Nh",value=500,min=300,max=1000,round=1)
     
 
-    opt.append("beta_i",value=0.86,min=0.0,max=1,round=2)
-    opt.append("alpha_i",value=0.4,min=0.0,max=1,round=2)
+    # opt.append("beta_i",value=0.86,min=0.0,max=1,round=2)
+    # opt.append("alpha_i",value=0.4,min=0.0,max=1,round=2)
 
-    opt.append("beta_r",value=0.58,min=0.0,max=1,round=2)
-    opt.append("alpha_r",value=0.08,min=0.,max=1,round=2)
+    # opt.append("beta_r",value=0.58,min=0.0,max=1,round=2)
+    # opt.append("alpha_r",value=0.08,min=0.,max=1,round=2)
 
-    opt.append("alpha_s",value=0.98,min=0,max=2,round=2)
+    # opt.append("alpha_s",value=0.98,min=0,max=2,round=2)
+    opt.append("eta_init",value=0.01,min=0,max=1,round=4)
+    opt.append("sigma_init",value=0.01,min=0,max=1,round=4)
+    #opt.append("eta_final",value=0.58,min=0,max=1,round=2)
+    opt.append("tau_eta",value=0.98,min=0,max=1,round=2)
+    opt.append("tau_sigma",value=0.98,min=0,max=1,round=2)
+
+    
 
     # opt.append("beta_b",value=0.1,min=0.0,max=1,round=2)
     # opt.append("alpha_b",value=1,min=0.0,max=1,round=2)
@@ -96,8 +103,8 @@ def optimize():
     #opt.maximize(target="cnt_goal1",iteration=30,population=30,samples=3)
     # opt.minimize(target="plus_reward_times",iteration=10,population=3,samples=3)
     
-    opt.maximize(target=TARGET,iteration=30,population=40,samples=3)
-    #opt.minimize(TARGET=func,iteration=5,population=10,samples=4)
+    #opt.maximize(target=TARGET,iteration=30,population=40,samples=3)
+    opt.maximize(TARGET=TARGET,iteration=20,population=20,samples=4)
     common.config = opt.best_config # 最適化で得られた設定を基本設定とする
 optimize()
 
@@ -139,26 +146,26 @@ def gridsearch(X1,min=0,max=1,num=41,samples=10):
 def gs2():
     ns=3
     #gridsearch("Nh",min=50,max=700,num=41,samples=ns)
-    gridsearch("alpha_r",min=0.,max=1,num=41,samples=ns)
-    gridsearch("alpha_i",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("alpha_s",min=0.0,max=2,num=41,samples=ns)
+    # gridsearch("alpha_r",min=0.,max=1,num=41,samples=ns)
+    # gridsearch("alpha_i",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("alpha_s",min=0.0,max=2,num=41,samples=ns)
     #gridsearch("alpha_b",min=0.0,max=2,num=41,samples=ns)
     # gridsearch("alpha_o",min=0.0,max=2,num=41,samples=ns)
 
     # gridsearch("beta_o",min=0.0,max=1,num=41,samples=ns)
     #gridsearch("beta_b",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("beta_i",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("beta_r",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("beta_i",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("beta_r",min=0.0,max=1,num=41,samples=ns)
 
-    gridsearch("tau_x",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("tau_s",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("sigma_init",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("tau_x",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("tau_s",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("sigma_init",min=0.0,max=1,num=41,samples=ns)
 
-    gridsearch("sigma_final",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("tau_sigma",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("eta_init",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("eta_final",min=0.0,max=1,num=41,samples=ns)
-    gridsearch("tau_eta",min=0.0,max=1,num=41,samples=ns)
+    # gridsearch("sigma_final",min=0.0,max=1,num=41,samples=ns)
+    gridsearch("tau_sigma",min=0.0,max=1,num=101,samples=ns)
+    #gridsearch("eta_init",min=0.0,max=1,num=41,samples=ns)
+    #gridsearch("eta_final",min=0.0,max=1,num=41,samples=ns)
+    gridsearch("tau_eta",min=0.0,max=1,num=101,samples=ns)
     # gridsearch("Temp",min=1,max=10,num=41,samples=ns)
     # gridsearch("ave",min=-1,max=1,num=41,samples=ns)
     # gridsearch("std",min=0.01,max=1,num=41,samples=ns)

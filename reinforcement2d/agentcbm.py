@@ -94,30 +94,34 @@ class Agent:
 
         return None
 
-    def eta(self):
-        eta = self.eta_final + (self.eta_init-self.eta_final) * np.exp(-self.t/self.tau_eta)
+    def eta(self,t):
+        t = sum(t[self.episode-21:self.episode-1])/20
+        eta = self.eta_final + (self.eta_init-self.eta_final) * np.exp(-t/self.tau_eta)
+        #print(eta)
         return eta
 
-    def eta2(self):
-        """
-        self.mean_reward:一定エピソードの報酬平均
-        報酬平均に応じて学習率を変化させる。
-        段階的に変化させているが、関数を使って連続的に変化させると望ましい気がする
-        """
-        if self.mean_reward >= 7:
-            eta = 0
-        elif self.mean_reward >=5 and self.mean_reward <7:
-            eta = 0.0001
-        elif self.mean_reward >=3 and self.mean_reward <5:
-            eta = 0.001
-        elif self.mean_reward >=1 and self.mean_reward <3:
-            eta = 0.01
-        else:
-            eta = 0.01
-        return eta
+    # def eta2(self):
+    #     """
+    #     self.mean_reward:一定エピソードの報酬平均
+    #     報酬平均に応じて学習率を変化させる。
+    #     段階的に変化させているが、関数を使って連続的に変化させると望ましい気がする
+    #     """
+    #     if self.mean_reward >= 7:
+    #         eta = 0
+    #     elif self.mean_reward >=5 and self.mean_reward <7:
+    #         eta = 0.0001
+    #     elif self.mean_reward >=3 and self.mean_reward <5:
+    #         eta = 0.001
+    #     elif self.mean_reward >=1 and self.mean_reward <3:
+    #         eta = 0.01
+    #     else:
+    #         eta = 0.01
+    #     return eta
 
-    def sigma_s(self):
-        return self.sigma_final + (self.sigma_init-self.eta_final) * np.exp(-self.t/self.tau_sigma)
+    def sigma_s(self,t):
+        #print(t)
+        t = sum(t[self.episode-21:self.episode-1])/20
+        return self.sigma_final + (self.sigma_init-self.eta_final) * np.exp(-t/self.tau_sigma)
 
     def initialize(self):
         self.n = 0 #　resetによって0になる
@@ -212,26 +216,23 @@ class Agent:
         self.Q = []
         self.U = []
 
-    def get_action(self,state, reward,train=1):
+    def get_action(self,state, reward,train=1,sum1_reward_list=[]):
         ### 感覚情報についての前処理を行う。
 
         u1 = state[ :8]# 距離センサー
         u = np.exp(-u1/100)
-        action = self.step_network(u,reward,train)
+        action = self.step_network(u,reward,train,sum1_reward_list)
 
         return action
     
     def p2s(self,theta,p):
         return np.heaviside( np.sin(np.pi*(2*theta-p)),1)
 
-    def step_network(self, state, reward,train):
+    def step_network(self, state, reward,train,sum1_reward_list):
         u = state#input
         dt = 1.
-        
         hc = np.zeros(self.Nx)
         ht = 2*self.hs-1
-        
-
         for n in range(self.NN):
             self.hs_prev = self.hs
             theta = np.mod(n/self.NN,1)
@@ -265,7 +266,7 @@ class Agent:
         q_next = self.Wo @ r_next
 
         if train:
-            s_next = (1 -dt /self.tau_s)*self.s + self.sigma_s()*np.random.normal(0,1,self.Ny)
+            s_next = (1 -dt /self.tau_s)*self.s + self.sigma_s(sum1_reward_list)*np.random.normal(0,1,self.Ny)
         else:
             s_next = np.zeros(self.Ny)
         qt_next = q_next + s_next
@@ -276,9 +277,11 @@ class Agent:
             
         Wo_next = self.Wo
         if train:
-            Wo_next[self.a] = self.Wo[self.a] + self.eta()*np.tanh(reward +self.gamma*qt_next[a_next]-self.q[self.a])*self.r#変更
+            Wo_next[self.a] = self.Wo[self.a] + self.eta(sum1_reward_list)*np.tanh(reward +self.gamma*qt_next[a_next]-self.q[self.a])*self.r#変更
             ### epsilon greedy
-            epsilon = 0.2/(1 + self.mean_reward/3)#変更、報酬平均に応じて変化
+            #epsilon = 0.2/(1 + self.mean_reward/3)#変更、報酬平均に応じて変化
+            epsilon = self.sigma_s(sum1_reward_list)
+
             if epsilon > np.random.uniform(0, 1):
                 a_next = np.random.choice([0,1,2])
 

@@ -112,7 +112,7 @@ def plot_orbit(X,Y,episode):
     plt.figure()
     plt.plot(X[episode],Y[episode],c=cm.hsv(episode/len(X)))
     plt.grid(True)
-    plt.axis([50, 1050, 750, 50])#環境に依存する
+    plt.axis([50, 1050, 1050, 50])#環境に依存する
     plt.xlabel("x(mm)")
     plt.ylabel("y(mm)")
     plt.savefig(filename)
@@ -181,7 +181,7 @@ def plot_orbit_all(x,y,e,num_episode):
     最後のいくつかの軌道をプロット
     #x,y:軌道、e:seed、num_episode:エピソード最大
     """
-    environment = [50, 650, 750, 50]
+    environment = [0, 950, 950, 0]
     filename = 'plot'
     #r = patches.Rectangle(xy=(50, 350), width=200, height=700, ec='#000000', fill=(125,125,125,0.5))#壁とか
     #r2 = patches.Rectangle(xy=(450, 350), width=200, height=700, ec='#000000', fill=(125,125,125,0.5))
@@ -207,7 +207,9 @@ def plot_orbit_all(x,y,e,num_episode):
     plt.axis(environment)#環境に依存する
     plt.subplots_adjust(wspace=0.4, hspace=0.6)
     from explorer import common
-    plt.savefig(filename+'/'+common.string_now()+'.eps')
+    name = filename+'/'+common.string_now()
+    plt.savefig(name+'.eps')
+    plt.savefig(name+'.png')
     plt.clf()
     plt.close()
 

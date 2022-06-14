@@ -110,6 +110,7 @@ def execute(c):
     conflict = [0] * c.num_episodes
 
     count= 0
+
     ### エピソード ###
     for episode in tqdm(range(c.num_episodes)):
         ## 環境の初期化 ##
@@ -120,7 +121,7 @@ def execute(c):
         
         action = agent.a#初期行動はランダム
         
-        prev_r = None
+        prev_r = 0
         sreward = 0
         ### ステップ ###
         for t in range(c.max_steps):
@@ -145,20 +146,22 @@ def execute(c):
                         pygame.quit()
                         sys.exit()
                         
-            if 2 <= t < c.max_steps-1:
-                tmp = np.sum( np.heaviside( np.fabs(agent.r-prev_r) - 0.6 ,0))
-                c.cnt_overflow += tmp
+        
 
-            prev_r = agent.r
-            if c.plot & episode >= c.num_episodes-20:
-                #ロボットの軌道を保存する
-                plt.plot(c.sum_rew)
             
+        if c.plot & episode >= c.num_episodes-20:
+            #ロボットの軌道を保存する
+            plt.plot(c.sum_rew)
+
+        if 2 <= episode < c.num_episodes-1:
+            tmp = np.sum( np.heaviside( np.fabs(agent.r-prev_r) - 0.6 ,0))
+            c.cnt_overflow += tmp
+        prev_r = agent.r
 
         ### 評価&プロット ###
         ## ロボットの軌道を保存する(全てのエピソードを保存) ##
-        #X.append(env.x_oribit)
-        #Y.append(env.y_oribit) 
+        X.append(env.x_oribit)
+        Y.append(env.y_oribit) 
         c.rewards.append(sreward)
         c.now_epi +=1
         ## プロット(選択したエピソード) ##
@@ -193,7 +196,7 @@ def execute(c):
     # success2_sum.append(sum(success2[c.num_episodes-c.test_episode:])/c.test_episode)
 
     ## プロット(全エピソードの) ##
-    #someplot.plot_orbit_all(X,Y,seed_e,c.num_episodes)#全ての軌道を重ねてプロット
+    someplot.plot_orbit_all(X,Y,c.seed,c.num_episodes)#全ての軌道を重ねてプロット
     
     #c.success1,c.success2 = someplot.print_evaluation(success,success2,c.num_episodes)#成功率をターミナルに表示
     print(c.success1,c.success2)
